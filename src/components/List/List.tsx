@@ -4,7 +4,13 @@ import React, {
   cloneElement,
   PropsWithChildren,
 } from 'react';
-import { View, StyleProp, ViewStyle, StyleSheet } from 'react-native';
+import {
+  View,
+  StyleProp,
+  ViewStyle,
+  StyleSheet,
+  useColorScheme, // Import useColorScheme
+} from 'react-native';
 import { colors } from '../../utils';
 import { Caption } from '../Caption';
 import { ListStyleProvider } from '../ListStyleProvider';
@@ -38,37 +44,43 @@ export const List = ({
   style,
   children,
 }: ListProps) => {
+  const scheme = useColorScheme(); // Use the hook to detect theme
+
+  // Adjust the colors based on the theme
+  const dynamicColors = {
+    backgroundColor: scheme === 'dark' ? colors.darkModeBackground : colors.lightModeBackground,
+    containerBackgroundColor: scheme === 'dark' ? colors.darkModeBackground : colors.lightModeBackground,
+    headerColor: scheme === 'dark' ? colors.darkModeText : colors.lightModeText,
+    footerColor: scheme === 'dark' ? colors.darkModeText : colors.lightModeText,
+    dividerColor: scheme === 'dark' ? colors.darkModeDivider : colors.lightModeDivider,
+  };
+
   const listStyle = inset ? 'insetGrouped' : 'grouped';
+
   return (
-    <ListStyleProvider sideBar={sideBar} dividerColor={dividerColor}>
+    <ListStyleProvider sideBar={sideBar} dividerColor={dynamicColors.dividerColor}>
       <View
         style={[
           getOuterContainerStyles(listStyle),
-          containerBackgroundColor && {
-            backgroundColor: containerBackgroundColor,
-          },
+          { backgroundColor: dynamicColors.containerBackgroundColor },
         ]}
       >
-        {header && <Caption caption={header} color={headerColor} />}
+        {header && <Caption caption={header} color={dynamicColors.headerColor} />}
         <View
           style={[
             getContainerStyles(listStyle),
-            backgroundColor && { backgroundColor },
-            dividerColor && { borderColor: dividerColor },
+            { backgroundColor: dynamicColors.backgroundColor, borderColor: dynamicColors.dividerColor },
             style,
           ]}
         >
-          {Children.map(
-            children,
-            (child: React.ReactElement<RowProps>, index: number) =>
-              cloneElement(child, {
-                hideDivider:
-                  hideDividers || index === Children.count(children) - 1,
-                ...child.props,
-              })
+          {Children.map(children, (child: ReactElement<RowProps>, index) =>
+            cloneElement(child, {
+              hideDivider: hideDividers || index === Children.count(children) - 1,
+              ...child.props,
+            })
           )}
         </View>
-        {footer && <Caption caption={footer} color={footerColor} />}
+        {footer && <Caption caption={footer} color={dynamicColors.footerColor} />}
       </View>
     </ListStyleProvider>
   );
@@ -107,13 +119,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   groupedContainer: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.white, // This will be overridden by dynamic colors
     borderBottomWidth: StyleSheet.hairlineWidth * 1.2,
     borderTopWidth: StyleSheet.hairlineWidth * 1.2,
   },
   insetGroupedContainer: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.white, // This will be overridden as well
     borderRadius: 10,
     overflow: 'hidden',
   },
+  // Add definitions for darkModeBackground, lightModeBackground, etc., in your colors utility
 });

@@ -7,4 +7,10 @@ export const colors = {
   white: '#fff',
   highlightColor: '#e5e5ea',
   transparent: 'transparent',
+  lightModeBackground: '#fff',
+  lightModeText: '#000',
+  lightModeDivider: '#d1d1d6',
+  darkModeBackground: '#000',
+  darkModeText: '#fff',
+  darkModeDivider: '#2c2c2e',
 };
